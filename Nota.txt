@@ -1,0 +1,40 @@
+chmod +x correo.sh
+./correo.sh
+
+chmod +x roundcube.sh
+./roundcube.sh
+
+chmod +x createemail.sh
+./createemail.sh
+
+A Record:
+- Host: mail
+  Value: [IP-DE-TU-SERVIDOR]
+  TTL: 5 min
+
+MX Record:
+- Host: @
+  Value: mail.tudominio.com
+  Priority: 10
+  TTL: 5 min
+
+TXT Records:
+- Host: @
+  Value: "v=spf1 mx a:mail.tudominio.com -all"
+  TTL: 5 min
+
+#Genera DKIM
+chmod +x dkin.sh
+./dkin.sh
+
+DKIM 
+- Host: mail._domainkey
+  Value: [tu DKIN]
+  TTL: 5 min
+
+
+#habilitar alias
+sudo nano /etc/apache2/conf-enabled/roundcube.conf
+
+sudo systemctl restart apache2
+sudo systemctl status apache2
