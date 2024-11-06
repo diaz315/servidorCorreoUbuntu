@@ -33,6 +33,3 @@ sudo nano /etc/apache2/conf-enabled/roundcube.conf
 sudo systemctl restart apache2
 sudo systemctl status apache2
 ----------------------
-
-a2dissite /etc/apache2/sites-available/000-default.conf
-a2dissite /etc/apache2/sites-available/default-ssl.conf
