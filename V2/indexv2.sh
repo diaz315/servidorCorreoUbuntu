@@ -129,8 +129,8 @@ cat > /etc/postfixadmin/config.local.php << EOF
 \$CONF['smtp_port'] = '25';
 \$CONF['encrypt'] = 'md5crypt';
 \$CONF['dovecotpw'] = "/usr/bin/doveadm pw -s SHA512-CRYPT";
-
 EOF
+
 
 # Configurar Apache Virtual Hosts
 print_message "Configurando Virtual Hosts de Apache..."
