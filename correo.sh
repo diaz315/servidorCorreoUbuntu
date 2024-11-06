@@ -3,7 +3,7 @@
 # Variables
 SERVER_IP="137.184.59.37"
 DOMAIN="jdtech.com.co"
-HOSTNAME="mail.$DOMAIN"
+HOSTNAME="mails.$DOMAIN"
 MYSQL_POSTFIX_PASS="UnaNuevaContraseña"
 MYSQL_ADMIN_PASS="mailpassword"
 

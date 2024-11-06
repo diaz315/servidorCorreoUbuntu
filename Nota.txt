@@ -1,11 +1,6 @@
-chmod +x correo.sh
-./correo.sh
+chmod +x correo.sh && ./correo.sh && chmod +x roundcube.sh && ./roundcube.sh
 
-chmod +x roundcube.sh
-./roundcube.sh
-
-chmod +x createemail.sh
-./createemail.sh
+chmod +x createemail.sh && ./createemail.sh
 
 A Record:
 - Host: mail
@@ -24,8 +19,7 @@ TXT Records:
   TTL: 5 min
 
 #Genera DKIM
-chmod +x dkin.sh
-./dkin.sh
+chmod +x dkin.sh && ./dkin.sh
 
 DKIM 
 - Host: mail._domainkey
@@ -38,3 +32,7 @@ sudo nano /etc/apache2/conf-enabled/roundcube.conf
 
 sudo systemctl restart apache2
 sudo systemctl status apache2
+----------------------
+
+a2dissite /etc/apache2/sites-available/000-default.conf
+a2dissite /etc/apache2/sites-available/default-ssl.conf
