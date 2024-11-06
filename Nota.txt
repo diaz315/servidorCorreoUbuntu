@@ -1,7 +1,5 @@
 chmod +x correo.sh && ./correo.sh && chmod +x roundcube.sh && ./roundcube.sh
 
-chmod +x createemail.sh && ./createemail.sh
-
 A Record:
 - Host: mail
   Value: [IP-DE-TU-SERVIDOR]
