@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Variables
-SERVER_IP="137.184.59.37"
+SERVER_IP="159.223.102.84"
 DOMAIN="jdtech.com.co"
-HOSTNAME="mails.$DOMAIN"
+HOSTNAME="mail.$DOMAIN"
 MYSQL_POSTFIX_PASS="UnaNuevaContraseña"
 MYSQL_ADMIN_PASS="mailpassword"
 

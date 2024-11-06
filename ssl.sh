@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-DOMAIN="mails.jdtech.com.co"
+DOMAIN="mail.jdtech.com.co"
 EMAIL="diazjose195@gmail.com"  # Cambia esto por tu email
 ROUNDCUBE_CONF="/etc/apache2/conf-enabled/roundcube.conf"
 
