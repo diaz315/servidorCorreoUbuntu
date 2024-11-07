@@ -1,8 +1,13 @@
 #!/bin/bash
 
-# Variables (asegúrate de que coincidan con tu configuración anterior)
+# Variables
 DOMAIN="jdtech.com.co"
 SERVER_IP="159.223.102.84"
+MAIL_SUBDOMAIN="mail.$DOMAIN"
+ADMIN_SUBDOMAIN="admin.$DOMAIN"
+CERT_PATH="/etc/letsencrypt/live/$MAIL_SUBDOMAIN"
+SSL_CERT="$CERT_PATH/fullchain.pem"
+SSL_KEY="$CERT_PATH/privkey.pem"
 
 # Colores para output
 GREEN='\033[0;32m'
@@ -36,58 +41,31 @@ systemctl stop apache2
 # Obtener certificados
 print_message "Obteniendo certificados SSL para los dominios..."
 certbot certonly --standalone \
-    -d $DOMAIN \
-    -d mail.$DOMAIN \
-    -d admin.$DOMAIN \
+    -d $MAIL_SUBDOMAIN \
+    -d $ADMIN_SUBDOMAIN \
     --agree-tos \
     --non-interactive \
     --email webmaster@$DOMAIN
 
 # Verificar si se obtuvieron los certificados
-if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+if [ ! -f "$SSL_CERT" ]; then
     print_error "Error al obtener los certificados SSL"
     systemctl start apache2
     exit 1
 fi
 
-# Configurar SSL en Apache
+# Configurar SSL en Apache solo para los subdominios
 print_message "Configurando SSL en Apache..."
-cat > /etc/apache2/sites-available/000-default-ssl.conf << EOF
+cat > /etc/apache2/sites-available/mail-ssl.conf << EOF
 <IfModule mod_ssl.c>
     <VirtualHost *:443>
         ServerAdmin webmaster@$DOMAIN
-        ServerName $DOMAIN
-        DocumentRoot /var/www/html
-
-        SSLEngine on
-        SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
-        SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
-
-        # Configuración para PostfixAdmin
-        Alias /postfixadmin /usr/share/postfixadmin/public
-        <Directory /usr/share/postfixadmin/public>
-            Options FollowSymLinks MultiViews
-            AllowOverride All
-            Require all granted
-        </Directory>
-
-        # Configuración para Roundcube
-        Alias /webmail /var/lib/roundcube
-        <Directory /var/lib/roundcube>
-            Options FollowSymLinks MultiViews
-            AllowOverride All
-            Require all granted
-        </Directory>
-    </VirtualHost>
-
-    <VirtualHost *:443>
-        ServerAdmin webmaster@$DOMAIN
-        ServerName admin.$DOMAIN
+        ServerName $ADMIN_SUBDOMAIN
         DocumentRoot /usr/share/postfixadmin/public
 
         SSLEngine on
-        SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
-        SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
+        SSLCertificateFile $SSL_CERT
+        SSLCertificateKeyFile $SSL_KEY
 
         <Directory /usr/share/postfixadmin/public>
             Options FollowSymLinks MultiViews
@@ -98,12 +76,12 @@ cat > /etc/apache2/sites-available/000-default-ssl.conf << EOF
 
     <VirtualHost *:443>
         ServerAdmin webmaster@$DOMAIN
-        ServerName mail.$DOMAIN
+        ServerName $MAIL_SUBDOMAIN
         DocumentRoot /var/lib/roundcube
 
         SSLEngine on
-        SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
-        SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
+        SSLCertificateFile $SSL_CERT
+        SSLCertificateKeyFile $SSL_KEY
 
         <Directory /var/lib/roundcube>
             Options FollowSymLinks MultiViews
@@ -116,8 +94,8 @@ EOF
 
 # Configurar SSL en Postfix
 print_message "Configurando SSL en Postfix..."
-postconf -e "smtpd_tls_cert_file = /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
-postconf -e "smtpd_tls_key_file = /etc/letsencrypt/live/$DOMAIN/privkey.pem"
+postconf -e "smtpd_tls_cert_file = $SSL_CERT"
+postconf -e "smtpd_tls_key_file = $SSL_KEY"
 postconf -e "smtpd_tls_security_level = may"
 postconf -e "smtp_tls_security_level = may"
 
@@ -125,27 +103,27 @@ postconf -e "smtp_tls_security_level = may"
 print_message "Configurando SSL en Dovecot..."
 cat > /etc/dovecot/conf.d/10-ssl.conf << EOF
 ssl = yes
-ssl_cert = </etc/letsencrypt/live/$DOMAIN/fullchain.pem
-ssl_key = </etc/letsencrypt/live/$DOMAIN/privkey.pem
+ssl_cert = <$SSL_CERT
+ssl_key = <$SSL_KEY
 ssl_min_protocol = TLSv1.2
 ssl_prefer_server_ciphers = yes
 EOF
 
-# Configurar redirección HTTP a HTTPS
+# Configurar redirección HTTP a HTTPS solo para los subdominios
 print_message "Configurando redirección HTTP a HTTPS..."
-cat > /etc/apache2/sites-available/000-default.conf << EOF
+cat > /etc/apache2/sites-available/mail.conf << EOF
 <VirtualHost *:80>
-    ServerName $DOMAIN
-    ServerAlias www.$DOMAIN mail.$DOMAIN admin.$DOMAIN
-    Redirect permanent / https://$DOMAIN/
+    ServerName $MAIL_SUBDOMAIN
+    ServerAlias $ADMIN_SUBDOMAIN
+    Redirect permanent / https://$MAIL_SUBDOMAIN/
 </VirtualHost>
 EOF
 
 # Habilitar módulos y sitios de Apache
 print_message "Habilitando configuración de Apache..."
 a2enmod ssl
-a2ensite default-ssl
-a2ensite 000-default-ssl.conf
+a2ensite mail-ssl.conf
+a2ensite mail.conf
 
 # Configurar renovación automática de certificados
 print_message "Configurando renovación automática de certificados..."
@@ -170,8 +148,7 @@ fi
 
 print_message "¡Configuración SSL completada!"
 print_message "Accesos seguros:"
-print_message "- Webmail: https://mail.$DOMAIN"
-print_message "- PostfixAdmin: https://admin.$DOMAIN"
-print_message "- Sitio principal: https://$DOMAIN"
+print_message "- Webmail: https://$MAIL_SUBDOMAIN"
+print_message "- PostfixAdmin: https://$ADMIN_SUBDOMAIN"
 print_message ""
 print_message "Los certificados se renovarán automáticamente cada mes"
