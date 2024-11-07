@@ -74,40 +74,14 @@ mysql -e "CREATE DATABASE IF NOT EXISTS postfixadmin;"
 # Crear usuarios con mysql_native_password
 
 mysql -e "CREATE USER IF NOT EXISTS 'postfixadmin'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_POSTFIX_PASS';"
-mysql -e "CREATE USER IF NOT EXISTS 'mailadmin'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ADMIN_PASS';"
 
 # Asignar permisos
-mysql -e "GRANT SELECT ON mailserver.* TO 'postfix'@'localhost';"
 mysql -e "GRANT ALL PRIVILEGES ON postfixadmin.* TO 'postfixadmin'@'localhost';"
-mysql -e "GRANT ALL PRIVILEGES ON mailserver.* TO 'mailadmin'@'localhost';"
 
 # Asegurar el método de autenticación con ALTER USER
-mysql -e "ALTER USER 'postfix'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_POSTFIX_PASS';"
 mysql -e "ALTER USER 'postfixadmin'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_POSTFIX_PASS';"
-mysql -e "ALTER USER 'mailadmin'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ADMIN_PASS';"
 
 mysql -e "FLUSH PRIVILEGES;"
-
-# Crear tablas
-mysql mailserver << EOF
-CREATE TABLE \`virtual_domains\` (
-    \`id\` int(11) NOT NULL auto_increment,
-    \`name\` varchar(50) NOT NULL,
-    PRIMARY KEY (\`id\`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE \`virtual_users\` (
-    \`id\` int(11) NOT NULL auto_increment,
-    \`domain_id\` int(11) NOT NULL,
-    \`email\` varchar(100) NOT NULL,
-    \`password\` varchar(255) NOT NULL,
-    PRIMARY KEY (\`id\`),
-    UNIQUE KEY \`email\` (\`email\`),
-    FOREIGN KEY (domain_id) REFERENCES virtual_domains(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO virtual_domains (id, name) VALUES ('1', '$DOMAIN');
-EOF
 
 # Configuración de PostfixAdmin
 print_message "Configurando PostfixAdmin..."
