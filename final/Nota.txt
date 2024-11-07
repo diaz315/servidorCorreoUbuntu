@@ -1,4 +1,4 @@
-chmod +x correo.sh && ./correo.sh && chmod +x roundcube.sh && ./roundcube.sh
+chmod +x main.sh && ./main.sh
 
 A Record:
 - Host: mail
@@ -24,10 +24,5 @@ DKIM
   Value: [tu DKIN]
   TTL: 5 min
 
-
-#habilitar alias
-sudo nano /etc/apache2/conf-enabled/roundcube.conf
-
-sudo systemctl restart apache2
-sudo systemctl status apache2
-----------------------
+#con ssl.sh se intalan los certificados ssl web
+chmod +x ssl.sh && ./ssl.sh

@@ -96,10 +96,6 @@ rm -rf /var/lib/roundcube/temp/*
 print_message "Reiniciando Apache..."
 systemctl restart apache2
 
-print_message "¡Corrección completada!"
-print_message "Por favor, verifica que ahora puedes acceder correctamente a los recursos estáticos de Roundcube"
-print_message "Si continúas teniendo problemas, verifica los logs de Apache en /var/log/apache2/error.log"
-
 print_message "Corrigiendo errores 403 en Roundcube..."
 
 # 1. Corregir estructura de directorios y enlaces simbólicos
@@ -201,10 +197,6 @@ chown www-data:www-data /var/lib/roundcube/temp
 # 11. Reiniciar Apache
 print_message "Reiniciando Apache..."
 systemctl restart apache2
-
-print_message "¡Corrección completada!"
-print_message "Verifica los logs de Apache si persisten los problemas:"
-print_message "tail -f /var/log/apache2/error.log"
 
 print_message "Corrigiendo dependencias específicas de Roundcube..."
 
@@ -309,10 +301,6 @@ for file in "${FILES_TO_CHECK[@]}"; do
     fi
 done
 
-print_message "¡Corrección completada!"
-print_message "Verifica los permisos ejecutando: ls -l /var/lib/roundcube/skins/elastic/deps/"
-print_message "Si persisten los problemas, verifica los logs: tail -f /var/log/apache2/error.log"
-
 print_message "Corrigiendo acceso a imágenes de Roundcube..."
 
 # 1. Crear estructura de directorios para imágenes
@@ -383,10 +371,3 @@ systemctl restart apache2
 # 11. Verificación final
 print_message "Verificando permisos del favicon..."
 ls -l /var/lib/roundcube/skins/elastic/images/favicon.ico
-
-print_message "¡Corrección completada!"
-print_message "Para verificar que todo está correcto, intenta acceder a:"
-print_message "http://tudominio.com/webmail/skins/elastic/images/favicon.ico"
-print_message ""
-print_message "Si aún hay problemas, verifica los logs de Apache:"
-print_message "tail -f /var/log/apache2/error.log"
