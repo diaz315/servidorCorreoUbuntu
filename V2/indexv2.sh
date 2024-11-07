@@ -274,7 +274,7 @@ EOF
 cat > /etc/postfix/mysql-virtual-mailbox-domains.cf << EOF
 user = postfixadmin
 password = $MYSQL_POSTFIX_PASS
-hosts = localhost
+hosts = 127.0.0.1
 dbname = postfixadmin
 query = SELECT domain FROM domain WHERE domain='%s' AND active = '1'
 EOF
@@ -282,7 +282,7 @@ EOF
 cat > /etc/postfix/mysql-virtual-mailbox-maps.cf << EOF
 user = postfixadmin
 password = $MYSQL_POSTFIX_PASS
-hosts = localhost
+hosts = 127.0.0.1
 dbname = postfixadmin
 query = SELECT maildir FROM mailbox WHERE username='%s' AND active = '1'
 EOF
